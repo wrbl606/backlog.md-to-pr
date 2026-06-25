@@ -66,9 +66,9 @@ run_opencode() {
     args+=("${extra_args[@]}")
   fi
 
-  args+=(--file "$BACKLOG_TO_PR_PROMPT")
-
-  opencode "${args[@]}" "Follow the instructions in the attached backlog-to-pr prompt."
+  local prompt
+  prompt="$(cat "$BACKLOG_TO_PR_PROMPT")"
+  opencode "${args[@]}" "$prompt"
 }
 
 case "${1:-}" in
