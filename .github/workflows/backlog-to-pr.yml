@@ -24,6 +24,11 @@ on:
         required: false
         default: true
         type: boolean
+      tag_trigger:
+        description: Tag the triggering actor in the PR body
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -51,3 +56,4 @@ jobs:
           opencode-model: ${{ inputs.provider == 'opencode' && inputs.model || '' }}
           opencode-go-subscription-key: ${{ secrets.OPENCODE_GO_SUBSCRIPTION_KEY }}
           draft: ${{ inputs.draft }}
+          tag-trigger: ${{ inputs.tag_trigger }}

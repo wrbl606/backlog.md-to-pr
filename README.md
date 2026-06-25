@@ -104,7 +104,7 @@ Before running hooks or a provider, the action adds a runtime `backlog` shim to 
 | `base-branch` | checked out branch | PR base branch. |
 | `branch-prefix` | `backlog-to-pr` | Generated branch prefix. |
 | `commit-message` | `Solve {ticket}` | Commit message template. |
-| `pr-title` | `{ticket}: {summary}` | PR title template. |
+| `pr-title` | `{ticket}: {summary}` | PR title template. The `{summary}` token is auto-truncated to keep the total title at or under 72 characters. |
 | `pr-body` | generated | Optional PR body template. |
 | `pr-labels` | | Comma-separated PR labels. |
 | `draft` | `false` | Create a draft PR. |
@@ -117,6 +117,7 @@ Before running hooks or a provider, the action adds a runtime `backlog` shim to 
 | `opencode-agent` | | Optional OpenCode agent name. |
 | `opencode-go-subscription-key` | | Optional OpenCode Go subscription API key. |
 | `opencode-args` | | Extra arguments for `opencode run`. |
+| `tag-trigger` | `false` | When `true`, append an `@mention` of the actor who triggered the workflow to the PR body. |
 | `fail-on-empty-diff` | `true` | Fail if no changes are produced. |
 
 ## Provider Adapters

@@ -76,6 +76,10 @@ inputs:
   opencode-args:
     description: Extra arguments passed to opencode run.
     required: false
+  tag-trigger:
+    description: When true, @mention the actor who triggered the workflow in the PR body.
+    default: "false"
+    required: false
   fail-on-empty-diff:
     description: Fail when the provider leaves no repository changes.
     default: "true"
@@ -115,5 +119,6 @@ runs:
         INPUT_OPENCODE_AGENT: ${{ inputs.opencode-agent }}
         INPUT_OPENCODE_GO_SUBSCRIPTION_KEY: ${{ inputs.opencode-go-subscription-key }}
         INPUT_OPENCODE_ARGS: ${{ inputs.opencode-args }}
+        INPUT_TAG_TRIGGER: ${{ inputs.tag-trigger }}
         INPUT_FAIL_ON_EMPTY_DIFF: ${{ inputs.fail-on-empty-diff }}
       run: "$GITHUB_ACTION_PATH/scripts/entrypoint.sh"
