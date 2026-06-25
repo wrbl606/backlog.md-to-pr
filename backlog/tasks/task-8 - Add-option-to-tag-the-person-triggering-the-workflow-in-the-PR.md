@@ -1,9 +1,10 @@
 ---
 id: TASK-8
 title: Add option to tag the person triggering the workflow in the PR
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-06-25 16:01'
+updated_date: '2026-06-25 17:01'
 labels:
   - enhancement
 dependencies: []
@@ -24,9 +25,15 @@ The current workflow has no awareness of who triggered it. Adding a new input pa
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A new boolean input 'tag-trigger' is added to action.yml, defaulting to false
-- [ ] #2 When enabled, the PR body includes an @mention of the github.actor who triggered the workflow
-- [ ] #3 The @mention appears in the PR body below the main content as a note
-- [ ] #4 Behavior is documented in README.md including the new input
-- [ ] #5 The workflow file (.github/workflows/backlog-to-pr.yml) exposes the new input
+- [x] #1 A new boolean input 'tag-trigger' is added to action.yml, defaulting to false
+- [x] #2 When enabled, the PR body includes an @mention of the github.actor who triggered the workflow
+- [x] #3 The @mention appears in the PR body below the main content as a note
+- [x] #4 Behavior is documented in README.md including the new input
+- [x] #5 The workflow file (.github/workflows/backlog-to-pr.yml) exposes the new input
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added tag-trigger boolean input to action.yml (default false). When enabled, appends 'Triggered by @{actor}' to the PR body. Exposed in workflow_dispatch inputs and env passthrough.
+<!-- SECTION:FINAL_SUMMARY:END -->

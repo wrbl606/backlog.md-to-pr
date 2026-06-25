@@ -1,9 +1,10 @@
 ---
 id: TASK-7
 title: Make PR titles short and focused
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-06-25 16:01'
+updated_date: '2026-06-25 17:01'
 labels:
   - enhancement
 dependencies: []
@@ -22,9 +23,15 @@ The summary extraction should produce a concise, focused title that captures the
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 PR titles are no more than 72 characters in total
-- [ ] #2 The summary portion is stripped of noise words and kept to the essential outcome
-- [ ] #3 Existing {ticket} prefix behavior is preserved
-- [ ] #4 If the heading cannot be shortened meaningfully, the original heading is used as-is
-- [ ] #5 Behavior is documented in README.md
+- [x] #1 PR titles are no more than 72 characters in total
+- [x] #2 The summary portion is stripped of noise words and kept to the essential outcome
+- [x] #3 Existing {ticket} prefix behavior is preserved
+- [x] #4 If the heading cannot be shortened meaningfully, the original heading is used as-is
+- [x] #5 Behavior is documented in README.md
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+PR title {summary} token now auto-truncates to keep total title <= 72 chars. For TASK-7 (6 chars) + ': ' (2 chars), summary gets up to 64 chars before '...' ellipsis. Full summary preserved in PR body.
+<!-- SECTION:FINAL_SUMMARY:END -->
