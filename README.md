@@ -30,12 +30,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.BACKLOG_TO_PR_GITHUB_TOKEN || github.token }}
 
       - uses: your-org/backlog-to-pr@v1
         with:
           backlog-task-id: ${{ inputs.backlog_task_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.BACKLOG_TO_PR_GITHUB_TOKEN || github.token }}
 ```
+
+The default `github.token` can push normal code changes and open pull requests with the permissions above. If a generated branch may create or update files under `.github/workflows`, set `BACKLOG_TO_PR_GITHUB_TOKEN` to a fine-grained PAT or GitHub App token that has repository contents and workflow-file write permission; otherwise GitHub rejects the push.
 
 For Codex, provide the authentication expected by Codex CLI in the runner environment, for example `OPENAI_API_KEY`.
 
@@ -95,7 +98,7 @@ Before running hooks or a provider, the action adds a runtime `backlog` shim to 
 | Input | Default | Description |
 | --- | --- | --- |
 | `backlog-task-id` | required | Backlog.md task ID, for example `7`, `task-7`, or `BACK-7`. |
-| `github-token` | `${{ github.token }}` | Token for branch push and PR creation. |
+| `github-token` | `${{ github.token }}` | Token for branch push and PR creation. Use a token with workflow-file write permission when commits can touch `.github/workflows`. |
 | `config-dir` | `./backlog-to-pr` | Repo-local config directory. |
 | `provider` | `codex` | Provider adapter name. Supported values are `codex` and `opencode`. |
 | `base-branch` | checked out branch | PR base branch. |

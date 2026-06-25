@@ -11,7 +11,7 @@ inputs:
     description: Backlog.md task ID to load and solve, for example 7, task-7, or BACK-7.
     required: true
   github-token:
-    description: GitHub token used to push the branch and create the pull request.
+    description: GitHub token used to push the branch and create the pull request. Use a token with workflow-file write permission when commits can touch .github/workflows.
     required: false
   config-dir:
     description: Directory in the checked out repository containing prompts and hook scripts.

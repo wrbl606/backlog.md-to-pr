@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ secrets.BACKLOG_TO_PR_GITHUB_TOKEN || github.token }}
 
       - name: Run backlog-to-pr
         uses: ./
@@ -45,7 +46,7 @@ jobs:
         with:
           backlog-task-id: ${{ inputs.backlog_task_id }}
           provider: ${{ inputs.provider }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.BACKLOG_TO_PR_GITHUB_TOKEN || github.token }}
           codex-model: ${{ inputs.provider == 'codex' && inputs.model || '' }}
           opencode-model: ${{ inputs.provider == 'opencode' && inputs.model || '' }}
           opencode-go-subscription-key: ${{ secrets.OPENCODE_GO_SUBSCRIPTION_KEY }}
