@@ -14,7 +14,43 @@ install_opencode() {
   }
 }
 
+configure_opencode_go_auth() {
+  if [[ -z "${INPUT_OPENCODE_GO_SUBSCRIPTION_KEY:-}" ]]; then
+    return
+  fi
+
+  OPENCODE_AUTH_CONTENT="$(node <<'NODE'
+const fs = require("node:fs")
+const os = require("node:os")
+const path = require("node:path")
+
+const authPath = path.join(os.homedir(), ".local", "share", "opencode", "auth.json")
+let auth = {}
+
+if (process.env.OPENCODE_AUTH_CONTENT) {
+  try {
+    auth = JSON.parse(process.env.OPENCODE_AUTH_CONTENT)
+  } catch {}
+} else {
+  try {
+    auth = JSON.parse(fs.readFileSync(authPath, "utf8"))
+  } catch {}
+}
+
+auth.opencode = {
+  type: "api",
+  key: process.env.INPUT_OPENCODE_GO_SUBSCRIPTION_KEY,
+}
+
+process.stdout.write(JSON.stringify(auth))
+NODE
+)"
+  export OPENCODE_AUTH_CONTENT
+}
+
 run_opencode() {
+  configure_opencode_go_auth
+
   args=(run --dir "$GITHUB_WORKSPACE" --dangerously-skip-permissions)
 
   if [[ -n "${INPUT_OPENCODE_MODEL:-}" ]]; then

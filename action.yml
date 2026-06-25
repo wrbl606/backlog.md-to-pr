@@ -70,6 +70,9 @@ inputs:
   opencode-agent:
     description: Optional OpenCode agent name.
     required: false
+  opencode-go-subscription-key:
+    description: Optional OpenCode Go subscription API key. When set, the opencode provider receives it through OPENCODE_AUTH_CONTENT.
+    required: false
   opencode-args:
     description: Extra arguments passed to opencode run.
     required: false
@@ -110,6 +113,7 @@ runs:
         INPUT_OPENCODE_INSTALL_COMMAND: ${{ inputs.opencode-install-command }}
         INPUT_OPENCODE_MODEL: ${{ inputs.opencode-model }}
         INPUT_OPENCODE_AGENT: ${{ inputs.opencode-agent }}
+        INPUT_OPENCODE_GO_SUBSCRIPTION_KEY: ${{ inputs.opencode-go-subscription-key }}
         INPUT_OPENCODE_ARGS: ${{ inputs.opencode-args }}
         INPUT_FAIL_ON_EMPTY_DIFF: ${{ inputs.fail-on-empty-diff }}
       run: "$GITHUB_ACTION_PATH/scripts/entrypoint.sh"

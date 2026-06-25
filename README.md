@@ -41,6 +41,8 @@ For Codex, provide the authentication expected by Codex CLI in the runner enviro
 
 For OpenCode, provide the provider credentials expected by OpenCode. OpenCode supports environment-backed provider keys and its own auth configuration.
 
+For OpenCode Go, set the repository secret `OPENCODE_GO_SUBSCRIPTION_KEY` and pass it with `opencode-go-subscription-key`. The action exposes it to OpenCode through `OPENCODE_AUTH_CONTENT`.
+
 ## OpenCode
 
 ```yaml
@@ -49,6 +51,7 @@ For OpenCode, provide the provider credentials expected by OpenCode. OpenCode su
     backlog-task-id: ${{ inputs.backlog_task_id }}
     provider: opencode
     opencode-model: anthropic/claude-sonnet-4-5
+    opencode-go-subscription-key: ${{ secrets.OPENCODE_GO_SUBSCRIPTION_KEY }}
 ```
 
 The default OpenCode install command is:
@@ -103,6 +106,7 @@ The hook scripts receive these environment variables:
 | `opencode-install-command` | `npm install -g opencode-ai` | OpenCode install command. |
 | `opencode-model` | | Optional OpenCode model in `provider/model` form. |
 | `opencode-agent` | | Optional OpenCode agent name. |
+| `opencode-go-subscription-key` | | Optional OpenCode Go subscription API key. |
 | `opencode-args` | | Extra arguments for `opencode run`. |
 | `fail-on-empty-diff` | `true` | Fail if no changes are produced. |
 
