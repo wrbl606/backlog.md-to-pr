@@ -21,6 +21,33 @@ require_input() {
   [[ -n "$value" ]] || die "missing required input: $name"
 }
 
+configure_backlog_path() {
+  local shim_dir="$BACKLOG_TO_PR_RUNTIME_DIR/bin"
+  local fallback_backlog="${BACKLOG_TO_PR_ORIGINAL_BACKLOG:-}"
+
+  mkdir -p "$shim_dir"
+  cat > "$shim_dir/backlog" <<'SHIM'
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$GITHUB_WORKSPACE"
+
+if command -v npx >/dev/null 2>&1 && npx --no-install backlog --version >/dev/null 2>&1; then
+  exec npx --no-install backlog "$@"
+fi
+
+if [[ -n "${BACKLOG_TO_PR_ORIGINAL_BACKLOG:-}" && -x "$BACKLOG_TO_PR_ORIGINAL_BACKLOG" ]]; then
+  exec "$BACKLOG_TO_PR_ORIGINAL_BACKLOG" "$@"
+fi
+
+echo "backlog-to-pr: Backlog.md CLI was not found" >&2
+exit 127
+SHIM
+  chmod +x "$shim_dir/backlog"
+  export PATH="$shim_dir:$PATH"
+  export BACKLOG_TO_PR_ORIGINAL_BACKLOG="$fallback_backlog"
+}
+
 require_input "backlog-task-id" "${INPUT_BACKLOG_TASK_ID:-}"
 require_input "github-token" "${INPUT_GITHUB_TOKEN:-}"
 
@@ -30,11 +57,18 @@ require_input "github-token" "${INPUT_GITHUB_TOKEN:-}"
 cd "$GITHUB_WORKSPACE"
 git rev-parse --show-toplevel >/dev/null 2>&1 || die "the workspace must be a Git repository; run actions/checkout before backlog-to-pr"
 command -v gh >/dev/null 2>&1 || die "GitHub CLI (gh) is required on the runner"
+if command -v backlog >/dev/null 2>&1; then
+  export BACKLOG_TO_PR_ORIGINAL_BACKLOG="$(command -v backlog)"
+fi
 
 export BACKLOG_TO_PR_ACTION_PATH="$GITHUB_ACTION_PATH"
 export BACKLOG_TO_PR_TICKET_ID="$INPUT_BACKLOG_TASK_ID"
 export BACKLOG_TO_PR_PROVIDER="${INPUT_PROVIDER:-codex}"
-export BACKLOG_TO_PR_RUNTIME_DIR="$GITHUB_WORKSPACE/.backlog-to-pr-runtime"
+
+runtime_parent="${RUNNER_TEMP:-${TMPDIR:-/tmp}}"
+runtime_parent="${runtime_parent%/}"
+runtime_id="${GITHUB_RUN_ID:-$$}"
+export BACKLOG_TO_PR_RUNTIME_DIR="${BACKLOG_TO_PR_RUNTIME_DIR:-$runtime_parent/backlog-to-pr-runtime-$runtime_id}"
 export BACKLOG_TO_PR_TICKET_MARKDOWN="$BACKLOG_TO_PR_RUNTIME_DIR/task.md"
 export BACKLOG_TO_PR_WORKFLOW_MARKDOWN="$BACKLOG_TO_PR_RUNTIME_DIR/workflow.md"
 export BACKLOG_TO_PR_PROMPT="$BACKLOG_TO_PR_RUNTIME_DIR/prompt.md"
@@ -48,6 +82,11 @@ fallback_config="$GITHUB_ACTION_PATH/backlog-to-pr"
 mkdir -p "$BACKLOG_TO_PR_RUNTIME_DIR"
 
 "$GITHUB_ACTION_PATH/scripts/load-backlog.sh"
+
+if command -v backlog >/dev/null 2>&1; then
+  export BACKLOG_TO_PR_ORIGINAL_BACKLOG="$(command -v backlog)"
+fi
+configure_backlog_path
 
 summary="$(sed -n 's/^# *//p' "$BACKLOG_TO_PR_TICKET_MARKDOWN" | head -n 1)"
 if [[ -z "$summary" ]]; then

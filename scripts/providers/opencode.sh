@@ -37,7 +37,7 @@ if (process.env.OPENCODE_AUTH_CONTENT) {
   } catch {}
 }
 
-auth.opencode = {
+auth["opencode-go"] = {
   type: "api",
   key: process.env.INPUT_OPENCODE_GO_SUBSCRIPTION_KEY,
 }
@@ -54,7 +54,12 @@ run_opencode() {
   args=(run --dir "$GITHUB_WORKSPACE" --dangerously-skip-permissions)
 
   if [[ -n "${INPUT_OPENCODE_MODEL:-}" ]]; then
-    args+=(--model "$INPUT_OPENCODE_MODEL")
+    local model="$INPUT_OPENCODE_MODEL"
+    if [[ -n "${INPUT_OPENCODE_GO_SUBSCRIPTION_KEY:-}" && "$model" == opencode/* ]]; then
+      model="opencode-go/${model#opencode/}"
+      echo "backlog-to-pr: OpenCode Go subscription key was provided; using '$model'" >&2
+    fi
+    args+=(--model "$model")
   fi
 
   if [[ -n "${INPUT_OPENCODE_AGENT:-}" ]]; then

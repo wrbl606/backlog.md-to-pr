@@ -23,7 +23,7 @@ export GITHUB_WORKSPACE="$tmp_dir/workspace"
 export BACKLOG_TO_PR_PROMPT="$tmp_dir/prompt.md"
 export INPUT_CODEX_MODEL=""
 export INPUT_CODEX_ARGS=""
-export INPUT_OPENCODE_MODEL=""
+export INPUT_OPENCODE_MODEL="opencode-go/glm-5.2"
 export INPUT_OPENCODE_AGENT=""
 export INPUT_OPENCODE_ARGS=""
 export INPUT_OPENCODE_GO_SUBSCRIPTION_KEY=""
@@ -61,6 +61,10 @@ if (args.at(-1) !== prompt) {
 if (!args.includes("run") || !args.includes("--dir") || !args.includes(process.env.GITHUB_WORKSPACE)) {
   throw new Error("opencode run arguments are missing expected workspace options")
 }
+const modelIndex = args.indexOf("--model")
+if (modelIndex === -1 || args[modelIndex + 1] !== "opencode-go/glm-5.2") {
+  throw new Error(`opencode-go model should be preserved. Captured: ${JSON.stringify(args)}`)
+}
 NODE
 
 make_stub_bin "codex" 'printf "%s\n" "$@" > "$CODEX_ARGS_FILE"
@@ -72,6 +76,18 @@ bash "$repo_root/scripts/providers/codex.sh" run
 
 if ! grep -Fx -- "-" "$CODEX_ARGS_FILE" >/dev/null; then
   echo "provider test failed: codex should read prompt content from stdin with '-' argument" >&2
+  exit 1
+fi
+if grep -Fx -- "--ask-for-approval" "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should not receive removed --ask-for-approval flag" >&2
+  exit 1
+fi
+if ! grep -Fx -- "--sandbox" "$CODEX_ARGS_FILE" >/dev/null || ! grep -Fx -- "workspace-write" "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should run with workspace-write sandbox" >&2
+  exit 1
+fi
+if ! grep -Fx -- "--config" "$CODEX_ARGS_FILE" >/dev/null || ! grep -Fx -- 'approval_policy="never"' "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should disable approval prompts with approval_policy config" >&2
   exit 1
 fi
 if ! cmp -s "$BACKLOG_TO_PR_PROMPT" "$CODEX_STDIN_FILE"; then
