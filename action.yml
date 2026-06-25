@@ -1,0 +1,115 @@
+name: backlog-to-pr
+description: Create a pull request that solves a Backlog.md task with an agentic coding CLI.
+author: backlog-to-pr
+
+branding:
+  icon: git-pull-request
+  color: blue
+
+inputs:
+  backlog-task-id:
+    description: Backlog.md task ID to load and solve, for example 7, task-7, or BACK-7.
+    required: true
+  github-token:
+    description: GitHub token used to push the branch and create the pull request.
+    required: false
+  config-dir:
+    description: Directory in the checked out repository containing prompts and hook scripts.
+    default: ./backlog-to-pr
+    required: false
+  provider:
+    description: Coding CLI provider adapter to run. Supported values are codex and opencode.
+    default: codex
+    required: false
+  base-branch:
+    description: Pull request base branch. Defaults to the checked out branch.
+    required: false
+  branch-prefix:
+    description: Prefix for generated solution branches.
+    default: backlog-to-pr
+    required: false
+  commit-message:
+    description: Commit message. Supports {ticket} and {summary}.
+    default: "Solve {ticket}"
+    required: false
+  pr-title:
+    description: Pull request title. Supports {ticket} and {summary}.
+    default: "{ticket}: {summary}"
+    required: false
+  pr-body:
+    description: Optional pull request body. Supports {ticket} and {summary}.
+    required: false
+  pr-labels:
+    description: Comma-separated labels to add to the pull request.
+    required: false
+  draft:
+    description: Create the pull request as a draft.
+    default: "false"
+    required: false
+  backlog-install-command:
+    description: Command used to install Backlog.md when the backlog CLI is not present.
+    default: npm install -g backlog.md
+    required: false
+  codex-install-command:
+    description: Command used to install Codex CLI when the codex provider runs.
+    default: npm install -g @openai/codex
+    required: false
+  codex-model:
+    description: Optional model name passed to Codex CLI.
+    required: false
+  codex-args:
+    description: Extra arguments passed to codex exec.
+    required: false
+  opencode-install-command:
+    description: Command used to install OpenCode CLI when the opencode provider runs.
+    default: npm install -g opencode-ai
+    required: false
+  opencode-model:
+    description: Optional model name passed to OpenCode CLI, in provider/model form.
+    required: false
+  opencode-agent:
+    description: Optional OpenCode agent name.
+    required: false
+  opencode-args:
+    description: Extra arguments passed to opencode run.
+    required: false
+  fail-on-empty-diff:
+    description: Fail when the provider leaves no repository changes.
+    default: "true"
+    required: false
+
+outputs:
+  pull-request-url:
+    description: URL of the created pull request.
+    value: ${{ steps.run.outputs.pull-request-url }}
+  branch:
+    description: Name of the pushed solution branch.
+    value: ${{ steps.run.outputs.branch }}
+
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_BACKLOG_TASK_ID: ${{ inputs.backlog-task-id }}
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token || github.token }}
+        INPUT_CONFIG_DIR: ${{ inputs.config-dir }}
+        INPUT_PROVIDER: ${{ inputs.provider }}
+        INPUT_BASE_BRANCH: ${{ inputs.base-branch }}
+        INPUT_BRANCH_PREFIX: ${{ inputs.branch-prefix }}
+        INPUT_COMMIT_MESSAGE: ${{ inputs.commit-message }}
+        INPUT_PR_TITLE: ${{ inputs.pr-title }}
+        INPUT_PR_BODY: ${{ inputs.pr-body }}
+        INPUT_PR_LABELS: ${{ inputs.pr-labels }}
+        INPUT_DRAFT: ${{ inputs.draft }}
+        INPUT_BACKLOG_INSTALL_COMMAND: ${{ inputs.backlog-install-command }}
+        INPUT_CODEX_INSTALL_COMMAND: ${{ inputs.codex-install-command }}
+        INPUT_CODEX_MODEL: ${{ inputs.codex-model }}
+        INPUT_CODEX_ARGS: ${{ inputs.codex-args }}
+        INPUT_OPENCODE_INSTALL_COMMAND: ${{ inputs.opencode-install-command }}
+        INPUT_OPENCODE_MODEL: ${{ inputs.opencode-model }}
+        INPUT_OPENCODE_AGENT: ${{ inputs.opencode-agent }}
+        INPUT_OPENCODE_ARGS: ${{ inputs.opencode-args }}
+        INPUT_FAIL_ON_EMPTY_DIFF: ${{ inputs.fail-on-empty-diff }}
+      run: "$GITHUB_ACTION_PATH/scripts/entrypoint.sh"

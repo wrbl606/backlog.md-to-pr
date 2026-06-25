@@ -1,0 +1,11 @@
+{
+  "name": "backlog-to-pr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "backlog": "backlog"
+  },
+  "devDependencies": {
+    "backlog.md": "^1.7.1"
+  }
+}
