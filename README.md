@@ -50,9 +50,11 @@ For OpenCode Go, set the repository secret `OPENCODE_GO_SUBSCRIPTION_KEY` and pa
   with:
     backlog-task-id: ${{ inputs.backlog_task_id }}
     provider: opencode
-    opencode-model: anthropic/claude-sonnet-4-5
+    opencode-model: opencode-go/glm-5.2
     opencode-go-subscription-key: ${{ secrets.OPENCODE_GO_SUBSCRIPTION_KEY }}
 ```
+
+OpenCode Go subscription keys are configured for the `opencode-go/...` provider id, for example `opencode-go/glm-5.2`. If `opencode-go-subscription-key` is set and `opencode-model` uses `opencode/...`, the action rewrites it to `opencode-go/...` before invoking OpenCode.
 
 The default OpenCode install command is:
 
@@ -84,6 +86,10 @@ The hook scripts receive these environment variables:
 
 `BACKLOG_TO_PR_TICKET_MARKDOWN` contains the output of `backlog task <id> --plain`. `BACKLOG_TO_PR_WORKFLOW_MARKDOWN` contains `backlog instructions overview` when available.
 
+Runtime files are written under `RUNNER_TEMP` by default so generated prompt and task context files are not included in the repository diff.
+
+Before running hooks or a provider, the action adds a runtime `backlog` shim to `PATH`. This lets provider subprocesses follow Backlog.md workflow instructions with commands like `backlog instructions overview` even when Backlog.md is only available through `npx --no-install backlog`.
+
 ## Inputs
 
 | Input | Default | Description |
@@ -99,7 +105,7 @@ The hook scripts receive these environment variables:
 | `pr-body` | generated | Optional PR body template. |
 | `pr-labels` | | Comma-separated PR labels. |
 | `draft` | `false` | Create a draft PR. |
-| `backlog-install-command` | `npm install -g backlog.md` | Backlog.md install command. |
+| `backlog-install-command` | `npm install -g backlog.md` | Backlog.md install command, used only when `npx --no-install backlog` and `backlog` are unavailable. |
 | `codex-install-command` | `npm install -g @openai/codex` | Codex install command. |
 | `codex-model` | | Optional Codex model. |
 | `codex-args` | | Extra arguments for `codex exec`. |

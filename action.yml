@@ -47,7 +47,7 @@ inputs:
     default: "false"
     required: false
   backlog-install-command:
-    description: Command used to install Backlog.md when the backlog CLI is not present.
+    description: Command used to install Backlog.md when neither npx --no-install backlog nor a backlog binary is available.
     default: npm install -g backlog.md
     required: false
   codex-install-command:

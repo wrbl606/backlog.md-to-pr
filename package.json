@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "backlog": "backlog",
-    "test": "bash scripts/test-providers.sh"
+    "test": "bash scripts/test-providers.sh && bash scripts/test-load-backlog.sh && bash scripts/test-entrypoint-opencode.sh"
   },
   "devDependencies": {
     "backlog.md": "^1.7.1"
