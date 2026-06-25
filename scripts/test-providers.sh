@@ -78,6 +78,18 @@ if ! grep -Fx -- "-" "$CODEX_ARGS_FILE" >/dev/null; then
   echo "provider test failed: codex should read prompt content from stdin with '-' argument" >&2
   exit 1
 fi
+if grep -Fx -- "--ask-for-approval" "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should not receive removed --ask-for-approval flag" >&2
+  exit 1
+fi
+if ! grep -Fx -- "--sandbox" "$CODEX_ARGS_FILE" >/dev/null || ! grep -Fx -- "workspace-write" "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should run with workspace-write sandbox" >&2
+  exit 1
+fi
+if ! grep -Fx -- "--config" "$CODEX_ARGS_FILE" >/dev/null || ! grep -Fx -- 'approval_policy="never"' "$CODEX_ARGS_FILE" >/dev/null; then
+  echo "provider test failed: codex should disable approval prompts with approval_policy config" >&2
+  exit 1
+fi
 if ! cmp -s "$BACKLOG_TO_PR_PROMPT" "$CODEX_STDIN_FILE"; then
   diff -u "$BACKLOG_TO_PR_PROMPT" "$CODEX_STDIN_FILE"
   echo "provider test failed: codex stdin should match generated prompt bytes" >&2

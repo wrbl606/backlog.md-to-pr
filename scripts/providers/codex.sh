@@ -15,7 +15,7 @@ install_codex() {
 }
 
 run_codex() {
-  args=(exec --cd "$GITHUB_WORKSPACE" --sandbox workspace-write --ask-for-approval never)
+  args=(exec --cd "$GITHUB_WORKSPACE" --sandbox workspace-write --config 'approval_policy="never"')
 
   if [[ -n "${INPUT_CODEX_MODEL:-}" ]]; then
     args+=(--model "$INPUT_CODEX_MODEL")
