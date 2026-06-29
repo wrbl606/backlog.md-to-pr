@@ -65,6 +65,13 @@ fi
 STUB
 chmod +x "$tmp_dir/bin/opencode"
 
+cat > "$tmp_dir/bin/gh" <<'STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'https://github.com/example/repo/pull/1\n'
+STUB
+chmod +x "$tmp_dir/bin/gh"
+
 export PATH="$tmp_dir/bin:$PATH"
 cd "$tmp_dir/workspace"
 git init --initial-branch=main >/dev/null

@@ -121,6 +121,7 @@ fi
 git config user.name "${GIT_AUTHOR_NAME:-backlog-to-pr[bot]}"
 git config user.email "${GIT_AUTHOR_EMAIL:-backlog-to-pr[bot]@users.noreply.github.com}"
 git checkout -B "$branch"
+base_sha="$(git rev-parse HEAD)"
 
 initial_prompt="$fallback_config/initial-prompt.md"
 if [[ -f "$config_dir/initial-prompt.md" ]]; then
@@ -166,9 +167,27 @@ if [[ -n "$verify_script" ]]; then
   bash "$verify_script"
 fi
 
+# The provider may commit its work directly to git and/or switch to a different
+# branch (some providers follow project conventions that create feature
+# branches). Normalize the result so the work lands on the action's branch.
+provider_branch="$(git branch --show-current 2>/dev/null || true)"
+provider_head="$(git rev-parse HEAD)"
+
+if [[ -n "$provider_branch" && "$provider_branch" != "$branch" ]]; then
+  # Provider left HEAD on another branch; replay its commits onto the action's
+  # branch so the work is not lost. Working-tree changes are carried over
+  # because the target commit is the current HEAD.
+  git checkout -B "$branch" "$provider_head"
+fi
+
 git add -A
 
-if git diff --cached --quiet; then
+# There is work to ship if there are staged uncommitted changes OR the action's
+# branch has advanced from the base commit (provider committed directly).
+has_staged_changes=false
+git diff --cached --quiet || has_staged_changes=true
+
+if [[ "$has_staged_changes" == "false" && "$(git rev-parse HEAD)" == "$base_sha" ]]; then
   if [[ "${INPUT_FAIL_ON_EMPTY_DIFF:-true}" == "true" ]]; then
     die "provider completed without producing repository changes"
   fi
@@ -180,8 +199,10 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-commit_message="$(replace_token "${INPUT_COMMIT_MESSAGE:-Solve {ticket}}" "$INPUT_BACKLOG_TASK_ID" "$summary")"
-git commit -m "$commit_message"
+if [[ "$has_staged_changes" == "true" ]]; then
+  commit_message="$(replace_token "${INPUT_COMMIT_MESSAGE:-Solve {ticket}}" "$INPUT_BACKLOG_TASK_ID" "$summary")"
+  git commit -m "$commit_message"
+fi
 
 if [[ -n "${GITHUB_REPOSITORY:-}" ]]; then
   git remote set-url origin "https://x-access-token:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
